@@ -45,7 +45,9 @@ namespace SCPUser {
 			ZeroMemory(l_Controller, sizeof(PAD_STATE)        * XUSER_MAX_COUNT);
 			ZeroMemory(l_Vibration,  sizeof(XINPUT_VIBRATION) * XUSER_MAX_COUNT);
 
-            XInputEnable(true);
+#if (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
+			XInputEnable(true);
+#endif
 		}
 
 	protected:
@@ -61,7 +63,9 @@ namespace SCPUser {
 				}
 			}
 
-            XInputEnable(false);
+#if (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
+			XInputEnable(false);
+#endif
 
 			if (components)
 			{
@@ -160,7 +164,9 @@ namespace SCPUser {
 										  _T("  Left Trigger: %d\n")
 										  _T("  Right Trigger: %d\n")
 										  _T("  Left Thumbstick: %d/%d\n")
-										  _T("  Right Thumbstick: %d/%d"), i + 1,
+										_T("  Right Thumbstick: %d/%d\n")
+									_T("  L/R Motor Speed: %d/%d\n"),
+									i + 1,
 										  ( wButtons & XINPUT_GAMEPAD_DPAD_UP ) ? _T("DPAD_UP ") : _T(""),
 										  ( wButtons & XINPUT_GAMEPAD_DPAD_DOWN ) ? _T("DPAD_DOWN ") : _T(""),
 										  ( wButtons & XINPUT_GAMEPAD_DPAD_LEFT ) ? _T("DPAD_LEFT ") : _T(""),
@@ -181,7 +187,10 @@ namespace SCPUser {
 										  l_Controller[i].state.Gamepad.sThumbLX,
 										  l_Controller[i].state.Gamepad.sThumbLY,
 										  l_Controller[i].state.Gamepad.sThumbRX,
-										  l_Controller[i].state.Gamepad.sThumbRY );
+										  l_Controller[i].state.Gamepad.sThumbRY,
+										l_Controller[i].vibration.wLeftMotorSpeed,
+										l_Controller[i].vibration.wRightMotorSpeed
+									);
 					}
 					else
 					{
@@ -196,6 +205,9 @@ namespace SCPUser {
 
 						l_Controller[i].vibration.wLeftMotorSpeed  = (WORD)((float)tbOutput_0_Large->Value * 653.55f);				
 						l_Controller[i].vibration.wRightMotorSpeed = (WORD)((float)tbOutput_0_Small->Value * 653.55f);
+
+						Lable_R_0->Visible = l_Controller[i].bConnected;
+						Lable_L_0->Visible = l_Controller[i].bConnected;
 						break;
 
 					case 1:
@@ -204,6 +216,9 @@ namespace SCPUser {
 
 						l_Controller[i].vibration.wLeftMotorSpeed  = (WORD)((float)tbOutput_1_Large->Value * 653.55f);
 						l_Controller[i].vibration.wRightMotorSpeed = (WORD)((float)tbOutput_1_Small->Value * 653.55f);
+
+						Lable_R_1->Visible = l_Controller[i].bConnected;
+						Lable_L_1->Visible = l_Controller[i].bConnected;
 						break;
 
 					case 2:
@@ -212,6 +227,9 @@ namespace SCPUser {
 
 						l_Controller[i].vibration.wLeftMotorSpeed  = (WORD)((float)tbOutput_2_Large->Value * 653.55f);
 						l_Controller[i].vibration.wRightMotorSpeed = (WORD)((float)tbOutput_2_Small->Value * 653.55f);
+
+						Lable_R_2->Visible = l_Controller[i].bConnected;
+						Lable_L_2->Visible = l_Controller[i].bConnected;
 						break;
 
 					case 3:
@@ -220,6 +238,9 @@ namespace SCPUser {
 
 						l_Controller[i].vibration.wLeftMotorSpeed  = (WORD)((float)tbOutput_3_Large->Value * 653.55f);
 						l_Controller[i].vibration.wRightMotorSpeed = (WORD)((float)tbOutput_3_Small->Value * 653.55f);
+
+						Lable_R_3->Visible = l_Controller[i].bConnected;
+						Lable_L_3->Visible = l_Controller[i].bConnected;
 						break;
 					}
 				}
@@ -286,6 +307,14 @@ namespace SCPUser {
 			this->cbDeadZone = (gcnew System::Windows::Forms::CheckBox());
 			this->statusBar = (gcnew System::Windows::Forms::StatusBar());
 			this->updateTimer = (gcnew System::Windows::Forms::Timer(this->components));
+			this->Lable_L_0 = (gcnew System::Windows::Forms::Label());
+			this->Lable_L_2 = (gcnew System::Windows::Forms::Label());
+			this->Lable_L_1 = (gcnew System::Windows::Forms::Label());
+			this->Lable_L_3 = (gcnew System::Windows::Forms::Label());
+			this->Lable_R_0 = (gcnew System::Windows::Forms::Label());
+			this->Lable_R_1 = (gcnew System::Windows::Forms::Label());
+			this->Lable_R_2 = (gcnew System::Windows::Forms::Label());
+			this->Lable_R_3 = (gcnew System::Windows::Forms::Label());
 			this->advPanel->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->tbOutput_0_Large))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->tbOutput_0_Small))->BeginInit();
@@ -302,7 +331,7 @@ namespace SCPUser {
 			this->lbOutput_0->AutoSize = true;
 			this->lbOutput_0->BackColor = System::Drawing::Color::Transparent;
 			this->lbOutput_0->Font = (gcnew System::Drawing::Font(L"Consolas", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(0)));
+																  static_cast<System::Byte>(0)));
 			this->lbOutput_0->ForeColor = System::Drawing::SystemColors::ControlText;
 			this->lbOutput_0->Location = System::Drawing::Point(13, 30);
 			this->lbOutput_0->Name = L"lbOutput_0";
@@ -315,7 +344,7 @@ namespace SCPUser {
 			this->lbOutput_1->AutoSize = true;
 			this->lbOutput_1->BackColor = System::Drawing::Color::Transparent;
 			this->lbOutput_1->Font = (gcnew System::Drawing::Font(L"Consolas", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(0)));
+																  static_cast<System::Byte>(0)));
 			this->lbOutput_1->ForeColor = System::Drawing::SystemColors::ControlText;
 			this->lbOutput_1->Location = System::Drawing::Point(13, 120);
 			this->lbOutput_1->Name = L"lbOutput_1";
@@ -328,7 +357,7 @@ namespace SCPUser {
 			this->lbOutput_2->AutoSize = true;
 			this->lbOutput_2->BackColor = System::Drawing::Color::Transparent;
 			this->lbOutput_2->Font = (gcnew System::Drawing::Font(L"Consolas", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(0)));
+																  static_cast<System::Byte>(0)));
 			this->lbOutput_2->ForeColor = System::Drawing::SystemColors::ControlText;
 			this->lbOutput_2->Location = System::Drawing::Point(13, 210);
 			this->lbOutput_2->Name = L"lbOutput_2";
@@ -341,7 +370,7 @@ namespace SCPUser {
 			this->lbOutput_3->AutoSize = true;
 			this->lbOutput_3->BackColor = System::Drawing::Color::Transparent;
 			this->lbOutput_3->Font = (gcnew System::Drawing::Font(L"Consolas", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(0)));
+																  static_cast<System::Byte>(0)));
 			this->lbOutput_3->ForeColor = System::Drawing::SystemColors::ControlText;
 			this->lbOutput_3->Location = System::Drawing::Point(13, 300);
 			this->lbOutput_3->Name = L"lbOutput_3";
@@ -352,6 +381,14 @@ namespace SCPUser {
 			// advPanel
 			// 
 			this->advPanel->BackColor = System::Drawing::SystemColors::Control;
+			this->advPanel->Controls->Add(this->Lable_L_1);
+			this->advPanel->Controls->Add(this->Lable_L_3);
+			this->advPanel->Controls->Add(this->Lable_L_2);
+			this->advPanel->Controls->Add(this->Lable_R_3);
+			this->advPanel->Controls->Add(this->Lable_R_2);
+			this->advPanel->Controls->Add(this->Lable_R_1);
+			this->advPanel->Controls->Add(this->Lable_R_0);
+			this->advPanel->Controls->Add(this->Lable_L_0);
 			this->advPanel->Controls->Add(this->cbExtensions);
 			this->advPanel->Controls->Add(this->lblRumble);
 			this->advPanel->Controls->Add(this->tbOutput_0_Large);
@@ -364,9 +401,9 @@ namespace SCPUser {
 			this->advPanel->Controls->Add(this->tbOutput_3_Small);
 			this->advPanel->Controls->Add(this->cbDeadZone);
 			this->advPanel->Dock = System::Windows::Forms::DockStyle::Right;
-			this->advPanel->Location = System::Drawing::Point(874, 0);
+			this->advPanel->Location = System::Drawing::Point(932, 0);
 			this->advPanel->Name = L"advPanel";
-			this->advPanel->Size = System::Drawing::Size(175, 491);
+			this->advPanel->Size = System::Drawing::Size(214, 491);
 			this->advPanel->TabIndex = 13;
 			// 
 			// cbExtensions
@@ -393,7 +430,7 @@ namespace SCPUser {
 			// 
 			this->tbOutput_0_Large->AutoSize = false;
 			this->tbOutput_0_Large->BackColor = System::Drawing::SystemColors::Control;
-			this->tbOutput_0_Large->Location = System::Drawing::Point(17, 30);
+			this->tbOutput_0_Large->Location = System::Drawing::Point(51, 30);
 			this->tbOutput_0_Large->Maximum = 100;
 			this->tbOutput_0_Large->Name = L"tbOutput_0_Large";
 			this->tbOutput_0_Large->Size = System::Drawing::Size(150, 25);
@@ -405,7 +442,7 @@ namespace SCPUser {
 			// 
 			this->tbOutput_0_Small->AutoSize = false;
 			this->tbOutput_0_Small->BackColor = System::Drawing::SystemColors::Control;
-			this->tbOutput_0_Small->Location = System::Drawing::Point(17, 61);
+			this->tbOutput_0_Small->Location = System::Drawing::Point(51, 61);
 			this->tbOutput_0_Small->Maximum = 100;
 			this->tbOutput_0_Small->Name = L"tbOutput_0_Small";
 			this->tbOutput_0_Small->Size = System::Drawing::Size(150, 25);
@@ -417,7 +454,7 @@ namespace SCPUser {
 			// 
 			this->tbOutput_1_Large->AutoSize = false;
 			this->tbOutput_1_Large->BackColor = System::Drawing::SystemColors::Control;
-			this->tbOutput_1_Large->Location = System::Drawing::Point(17, 120);
+			this->tbOutput_1_Large->Location = System::Drawing::Point(51, 120);
 			this->tbOutput_1_Large->Maximum = 100;
 			this->tbOutput_1_Large->Name = L"tbOutput_1_Large";
 			this->tbOutput_1_Large->Size = System::Drawing::Size(150, 25);
@@ -429,7 +466,7 @@ namespace SCPUser {
 			// 
 			this->tbOutput_1_Small->AutoSize = false;
 			this->tbOutput_1_Small->BackColor = System::Drawing::SystemColors::Control;
-			this->tbOutput_1_Small->Location = System::Drawing::Point(17, 151);
+			this->tbOutput_1_Small->Location = System::Drawing::Point(51, 151);
 			this->tbOutput_1_Small->Maximum = 100;
 			this->tbOutput_1_Small->Name = L"tbOutput_1_Small";
 			this->tbOutput_1_Small->Size = System::Drawing::Size(150, 25);
@@ -441,7 +478,7 @@ namespace SCPUser {
 			// 
 			this->tbOutput_2_Large->AutoSize = false;
 			this->tbOutput_2_Large->BackColor = System::Drawing::SystemColors::Control;
-			this->tbOutput_2_Large->Location = System::Drawing::Point(17, 210);
+			this->tbOutput_2_Large->Location = System::Drawing::Point(51, 210);
 			this->tbOutput_2_Large->Maximum = 100;
 			this->tbOutput_2_Large->Name = L"tbOutput_2_Large";
 			this->tbOutput_2_Large->Size = System::Drawing::Size(150, 25);
@@ -453,7 +490,7 @@ namespace SCPUser {
 			// 
 			this->tbOutput_2_Small->AutoSize = false;
 			this->tbOutput_2_Small->BackColor = System::Drawing::SystemColors::Control;
-			this->tbOutput_2_Small->Location = System::Drawing::Point(17, 241);
+			this->tbOutput_2_Small->Location = System::Drawing::Point(51, 241);
 			this->tbOutput_2_Small->Maximum = 100;
 			this->tbOutput_2_Small->Name = L"tbOutput_2_Small";
 			this->tbOutput_2_Small->Size = System::Drawing::Size(150, 25);
@@ -465,7 +502,7 @@ namespace SCPUser {
 			// 
 			this->tbOutput_3_Large->AutoSize = false;
 			this->tbOutput_3_Large->BackColor = System::Drawing::SystemColors::Control;
-			this->tbOutput_3_Large->Location = System::Drawing::Point(17, 300);
+			this->tbOutput_3_Large->Location = System::Drawing::Point(51, 300);
 			this->tbOutput_3_Large->Maximum = 100;
 			this->tbOutput_3_Large->Name = L"tbOutput_3_Large";
 			this->tbOutput_3_Large->Size = System::Drawing::Size(150, 25);
@@ -477,7 +514,7 @@ namespace SCPUser {
 			// 
 			this->tbOutput_3_Small->AutoSize = false;
 			this->tbOutput_3_Small->BackColor = System::Drawing::SystemColors::Control;
-			this->tbOutput_3_Small->Location = System::Drawing::Point(17, 331);
+			this->tbOutput_3_Small->Location = System::Drawing::Point(51, 331);
 			this->tbOutput_3_Small->Maximum = 100;
 			this->tbOutput_3_Small->Name = L"tbOutput_3_Small";
 			this->tbOutput_3_Small->Size = System::Drawing::Size(150, 25);
@@ -502,7 +539,7 @@ namespace SCPUser {
 			// 
 			this->statusBar->Location = System::Drawing::Point(0, 491);
 			this->statusBar->Name = L"statusBar";
-			this->statusBar->Size = System::Drawing::Size(1049, 22);
+			this->statusBar->Size = System::Drawing::Size(1146, 22);
 			this->statusBar->TabIndex = 7;
 			// 
 			// updateTimer
@@ -511,6 +548,78 @@ namespace SCPUser {
 			this->updateTimer->Interval = 50;
 			this->updateTimer->Tick += gcnew System::EventHandler(this, &SCPPad::updateTimer_Tick);
 			// 
+			// Lable_L_0
+			// 
+			this->Lable_L_0->AutoSize = true;
+			this->Lable_L_0->Location = System::Drawing::Point(13, 30);
+			this->Lable_L_0->Name = L"Lable_L_0";
+			this->Lable_L_0->Size = System::Drawing::Size(13, 13);
+			this->Lable_L_0->TabIndex = 11;
+			this->Lable_L_0->Text = L"L";
+			// 
+			// Lable_L_2
+			// 
+			this->Lable_L_2->AutoSize = true;
+			this->Lable_L_2->Location = System::Drawing::Point(13, 210);
+			this->Lable_L_2->Name = L"Lable_L_2";
+			this->Lable_L_2->Size = System::Drawing::Size(13, 13);
+			this->Lable_L_2->TabIndex = 12;
+			this->Lable_L_2->Text = L"L";
+			// 
+			// Lable_L_1
+			// 
+			this->Lable_L_1->AutoSize = true;
+			this->Lable_L_1->Location = System::Drawing::Point(13, 120);
+			this->Lable_L_1->Name = L"Lable_L_1";
+			this->Lable_L_1->Size = System::Drawing::Size(13, 13);
+			this->Lable_L_1->TabIndex = 13;
+			this->Lable_L_1->Text = L"L";
+			// 
+			// Lable_L_3
+			// 
+			this->Lable_L_3->AutoSize = true;
+			this->Lable_L_3->Location = System::Drawing::Point(13, 300);
+			this->Lable_L_3->Name = L"Lable_L_3";
+			this->Lable_L_3->Size = System::Drawing::Size(13, 13);
+			this->Lable_L_3->TabIndex = 12;
+			this->Lable_L_3->Text = L"L";
+			// 
+			// Lable_R_0
+			// 
+			this->Lable_R_0->AutoSize = true;
+			this->Lable_R_0->Location = System::Drawing::Point(13, 61);
+			this->Lable_R_0->Name = L"Lable_R_0";
+			this->Lable_R_0->Size = System::Drawing::Size(15, 13);
+			this->Lable_R_0->TabIndex = 11;
+			this->Lable_R_0->Text = L"R";
+			// 
+			// Lable_R_1
+			// 
+			this->Lable_R_1->AutoSize = true;
+			this->Lable_R_1->Location = System::Drawing::Point(11, 151);
+			this->Lable_R_1->Name = L"Lable_R_1";
+			this->Lable_R_1->Size = System::Drawing::Size(15, 13);
+			this->Lable_R_1->TabIndex = 11;
+			this->Lable_R_1->Text = L"R";
+			// 
+			// Lable_R_2
+			// 
+			this->Lable_R_2->AutoSize = true;
+			this->Lable_R_2->Location = System::Drawing::Point(11, 241);
+			this->Lable_R_2->Name = L"Lable_R_2";
+			this->Lable_R_2->Size = System::Drawing::Size(15, 13);
+			this->Lable_R_2->TabIndex = 11;
+			this->Lable_R_2->Text = L"R";
+			// 
+			// Lable_R_3
+			// 
+			this->Lable_R_3->AutoSize = true;
+			this->Lable_R_3->Location = System::Drawing::Point(11, 331);
+			this->Lable_R_3->Name = L"Lable_R_3";
+			this->Lable_R_3->Size = System::Drawing::Size(15, 13);
+			this->Lable_R_3->TabIndex = 11;
+			this->Lable_R_3->Text = L"R";
+			// 
 			// SCPPad
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
@@ -518,7 +627,7 @@ namespace SCPUser {
 			this->BackColor = System::Drawing::Color::White;
 			this->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"$this.BackgroundImage")));
 			this->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Center;
-			this->ClientSize = System::Drawing::Size(1049, 513);
+			this->ClientSize = System::Drawing::Size(1146, 513);
 			this->Controls->Add(this->lbOutput_0);
 			this->Controls->Add(this->lbOutput_1);
 			this->Controls->Add(this->lbOutput_2);
@@ -564,7 +673,18 @@ namespace SCPUser {
 	private: System::Windows::Forms::StatusBar^  statusBar;
 	private: System::Windows::Forms::Timer^  updateTimer;
 	private: System::Windows::Forms::CheckBox^  cbExtensions;
+private: System::Windows::Forms::Label^  Lable_L_0;
+private: System::Windows::Forms::Label^  Lable_L_1;
+private: System::Windows::Forms::Label^  Lable_L_3;
+private: System::Windows::Forms::Label^  Lable_L_2;
+private: System::Windows::Forms::Label^  Lable_R_3;
+private: System::Windows::Forms::Label^  Lable_R_2;
+private: System::Windows::Forms::Label^  Lable_R_1;
+private: System::Windows::Forms::Label^  Lable_R_0;
+
 	private: System::ComponentModel::IContainer^  components;
 	#pragma endregion
-	};
+	private: System::Void label1_Click(System::Object^  sender, System::EventArgs^  e) {
+	}
+};
 }

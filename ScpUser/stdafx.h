@@ -10,3 +10,4 @@
 #include "Resource.h"
 
 #define XINPUT_GAMEPAD_GUIDE 0x400
+#define _WIN32_WINNT   0x601
